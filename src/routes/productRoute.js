@@ -89,9 +89,9 @@ router.delete("/deleteProducts/:id", async (req, res) => {
         res.json(deleteProductsById);
 
     } catch (error) {
-        if (error.code === "P2003") { res.status(500).json({ error: `The product is linked to one or more orders` }) }
+        if (error.code === "P2003") { return res.status(500).json({ error: `The product is linked to one or more orders` }) }
         if (error.code === "P2025") { return res.status(400).json({ error: `Product does not exists` }) }
-        res.status(500).json({ error: `Error server: ${error.code}` })
+        return res.status(500).json({ error: `Error server: ${error.code}` })
 
     }
 
