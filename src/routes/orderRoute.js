@@ -12,10 +12,8 @@ const prisma = new PrismaClient();
 //POST
 router.post("/createOrder", async (req, res) => {
     try {
-        const { customer, Product } = req.body
+        const { customer, Product, state } = req.body
         const customerId = parseInt(customer)
-
-        const state = "pending"
         let total = 0
         const order = await prisma.order.create({
             data: { state, total: 0, customer: { connect: { id: customerId } } }
@@ -65,7 +63,7 @@ router.post("/createOrder", async (req, res) => {
         //Update total 
         await prisma.order.update({
             where: { id: order.id },
-            data: { total }
+            data: { total, state: req.body.state }
         })
         res.json({ orderId: order.id, total, items })
 
@@ -84,7 +82,7 @@ router.get("/getOrder", async (req, res) => {
                 ItemOrder: true
             }
         });
-        if (getOrder.length === 0) { return res.status(404).json({ error: "There is no data" }) }
+        if (getOrder.length === 0) { return res.status(404).json({ error: "There is no data: ", error }) }
         res.json(getOrder)
     } catch (error) { res.status(500).json({ error: "Error getting data" }) }
 })
@@ -133,6 +131,7 @@ router.patch("/patchState/:id", async (req, res) => {
         if (error.code === 'P2025') {
             return res.status(404).json({ error: 'Orden no encontrada.' });
         }
+        return
     }
 
 })
@@ -220,7 +219,8 @@ router.put("/updateOrder/:id", async (req, res) => {
         //Update total
         await prisma.order.update({
             where: { id },
-            data: { total }
+            data: { total , state: req.body.state}
+
         });
 
         res.json({ message: "Order updated successfully" });

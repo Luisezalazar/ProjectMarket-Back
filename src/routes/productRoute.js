@@ -12,14 +12,16 @@ const prisma = new PrismaClient();
 router.post("/createProduct", async (req, res) => {
     try {
         const { name, price, stock } = req.body
+        const parsePrice = parseFloat(price)
+        const parseStock = parseInt(stock)
         //Validation
-        if (!name || !price || !stock) { return res.status(400).json({ error: "required fields are missing" }) }
-        if (stock < 0 || price < 0) { return res.status(400).json({ error: "You cannot enter negative values" }) }
+        if (!name || !parsePrice || !parseStock) { return res.status(400).json({ error: "required fields are missing" }) }
+        if (parseStock < 0 || parsePrice < 0) { return res.status(400).json({ error: "You cannot enter negative values" }) }
         const product = await prisma.product.create({
             data: {
                 name,
-                price,
-                stock
+                price: parsePrice,
+                stock: parseStock
             }
         })
         res.json(product)
@@ -59,6 +61,7 @@ router.put("/updateProducts/:id", async (req, res) => {
     try {
         const id = parseInt(req.params.id);
         const { name, price, stock } = req.body;
+        console.log(req.body)
         if (!name == null || price == null || stock == null) {
             return res.status(400).json({ error: "All fields are required" })
         }
