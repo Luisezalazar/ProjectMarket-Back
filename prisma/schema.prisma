@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id    Int     @id @default(autoincrement())
+  name  String
+  email String  @unique
+  phone String
+  Order Order[]
+}
+
+model Category {
+  id      Int       @id @default(autoincrement())
+  name    String    @unique
+  urlImage  String?  
+  Product Product[]
+}
+
+model Image {
+  id        Int     @id @default(autoincrement())
+  url       String
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+}
+
+model Product {
+  id          Int         @id @default(autoincrement())
+  name        String
+  price       Float
+  description String      @default("Sin descripción")
+  category    Category    @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  stock       Int
+  images      Image[]
+  ItemOrder   ItemOrder[]
+}
+
+model Order {
+  id         Int      @id @default(autoincrement())
+  date       DateTime @default(now())
+  state      String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId Int
+  total      Decimal
+
+  ItemOrder ItemOrder[]
+}
+
+model ItemOrder {
+  id        Int     @id @default(autoincrement())
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  subtotal  Decimal
+  orderId   Int
+  productId Int
+}
